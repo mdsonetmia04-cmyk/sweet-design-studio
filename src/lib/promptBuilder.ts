@@ -90,21 +90,45 @@ export function buildDetailedPrompt(
       );
     }
     case "tshirt": {
-      const textBit = extra ? ` The design must include the text/slogan: "${extra}".` : "";
-      const colorBit = extra2 ? ` Color palette: ${extra2}.` : "";
-      const presentation = inputs.useMockup
-        ? "Presented realistically as a mockup on a blank t-shirt, natural fabric folds and studio lighting."
-        : "Isolated flat vector graphic on a solid white background, print-ready, 300 DPI look.";
+      // Detailed, Adobe Stock-oriented typography T-shirt prompt.
+      // The user's exact custom text is embedded verbatim — never rewritten.
+      const styleNotes: Record<string, string> = {
+        Modern: "clean geometric sans-serif lettering, sharp and contemporary",
+        Retro: "retro typography with vintage badge-like charm, warm nostalgic feel",
+        Minimal: "minimalist typography, restrained letterforms, generous whitespace, quiet confidence",
+        Vintage: "distressed vintage typography, classic worn-print character",
+        Graphic: "bold graphic typography with strong shapes and high visual impact",
+        Cartoon: "playful cartoon-style lettering, rounded and friendly",
+        Typography: "pure typographic composition — letterforms as the artwork, stacked and expressive",
+        Abstract: "creative abstract text arrangement, experimental layout, artistic flow",
+      };
+      const styleDesc = styleNotes[style] ?? `${style} typography`;
+      const userText = extra
+        ? `"${extra}"`
+        : `Theme: "${subject}" (no fixed wording supplied — invent a short original slogan fitting this theme)`;
+      const colorBit = extra2
+        ? `Color palette: ${extra2}.`
+        : "Color palette: high-contrast, print-friendly colors (2-4 inks maximum).";
+      const mockupBit = inputs.useMockup
+        ? "Present the finished graphic as a realistic t-shirt mockup on a plain white or neutral background — use a black t-shirt when the artwork is light-colored, or a white t-shirt when the artwork is dark-colored. "
+        : "";
       return (
-        `Creative t-shirt graphic design. Theme: "${subject}". ` +
-        `Style: ${style}.` +
-        textBit +
-        colorBit +
-        ` ${presentation} ` +
-        `Composition: bold central artwork with strong silhouette readability, limited screen-print-friendly color palette. ` +
-        `Any text spelled correctly — no gibberish lettering. ` +
-        `Quality: ${QUALITY}, no watermark.` +
-        `\n${AVOID_TEXT}` +
+        `Professional typography-based T-shirt graphic design, commercial stock quality.\n\n` +
+        `EXACT TEXT — reproduce this wording verbatim, preserving spelling, capitalization, punctuation and line breaks exactly. Do not reword, correct, translate, summarize or add any words:\n${userText}\n\n` +
+        `TYPOGRAPHY & HIERARCHY: ${styleDesc}. ` +
+        `Establish a clear hierarchy — the main headline lines large and dominant, supporting lines smaller. ` +
+        `Use stacked, well-balanced text arrangement with intentional alignment and comfortable letter and line spacing. ` +
+        `Letterforms must be clean, legible and precisely shaped.\n\n` +
+        `COMPOSITION & DECORATION: centered chest-print composition with balanced negative space. ` +
+        `Add tasteful supporting elements only where they elevate the design — thin rules, dividers, small geometric accents or frames that match the ${style} mood. ` +
+        `Keep the layout uncluttered and readable at a glance.\n\n` +
+        `${colorBit} ` +
+        `Ensure strong contrast between artwork and garment so every letter stays readable.\n\n` +
+        `PRESENTATION: ${mockupBit}` +
+        `Deliver an isolated, clean T-shirt graphic with a professional commercial finish — flat vector look, crisp edges, no background clutter, print-ready artwork.\n\n` +
+        `NEGATIVE INSTRUCTIONS: no misspelled, garbled or gibberish text; no extra words, slogans or taglines beyond the exact text above; ` +
+        `no logos, brand marks or watermarks; no blurry, pixelated or distorted typography; no warped or duplicated lettering; ` +
+        `no unnecessary decorative elements that fight the text.` +
         custom +
         v
       );
