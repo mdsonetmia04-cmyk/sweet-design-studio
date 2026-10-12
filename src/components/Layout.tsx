@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { useStore } from "@/src/store/useStore";
 import { 
   LayoutDashboard, 
@@ -34,8 +35,12 @@ const navItems = [
 ];
 
 export function Layout() {
-  const { theme, toggleTheme } = useStore();
+  const { theme, toggleTheme, accentTheme } = useStore();
   const location = useLocation();
+
+  useEffect(() => {
+    document.documentElement.dataset.accent = accentTheme || "platinum";
+  }, [accentTheme]);
 
   return (
     <div className={cn("min-h-screen flex", theme === "dark" ? "dark bg-onyx-950 text-zinc-50" : "bg-platinum-50 text-zinc-900")}>

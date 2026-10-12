@@ -36,6 +36,8 @@ interface AppState {
   setGroqApiKey: (key: string) => void;
   promptInstructions: string;
   setPromptInstructions: (instructions: string) => void;
+  accentTheme: string;
+  setAccentTheme: (theme: string) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -62,6 +64,8 @@ export const useStore = create<AppState>()(
       setGroqApiKey: (key) => set({ groqApiKey: key }),
       promptInstructions: "",
       setPromptInstructions: (instructions) => set({ promptInstructions: instructions }),
+      accentTheme: "platinum",
+      setAccentTheme: (theme) => set({ accentTheme: theme }),
     }),
     {
       name: "sweet-design-studio-storage",

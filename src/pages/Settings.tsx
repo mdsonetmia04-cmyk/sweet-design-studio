@@ -1,12 +1,20 @@
 import { useStore } from "@/src/store/useStore";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
-import { Key, Save, CheckCircle2, SlidersHorizontal } from "lucide-react";
+import { Key, Save, CheckCircle2, SlidersHorizontal, Palette } from "lucide-react";
 import { useState } from "react";
 import { motion } from "motion/react";
 
+const ACCENT_THEMES = [
+  { id: "platinum", name: "Platinum", hint: "Silver black-luxury", dot: "linear-gradient(135deg, #c6c7cf, #71738a)" },
+  { id: "emerald", name: "Emerald", hint: "Rich green", dot: "linear-gradient(135deg, #34d399, #059669)" },
+  { id: "sapphire", name: "Sapphire", hint: "Deep blue", dot: "linear-gradient(135deg, #60a5fa, #2563eb)" },
+  { id: "ruby", name: "Ruby", hint: "Bold crimson", dot: "linear-gradient(135deg, #fb7185, #e11d48)" },
+  { id: "amethyst", name: "Amethyst", hint: "Royal violet", dot: "linear-gradient(135deg, #a78bfa, #7c3aed)" },
+];
+
 export function Settings() {
-  const { geminiApiKey, setGeminiApiKey, groqApiKey, setGroqApiKey, promptInstructions, setPromptInstructions } = useStore();
+  const { geminiApiKey, setGeminiApiKey, groqApiKey, setGroqApiKey, promptInstructions, setPromptInstructions, accentTheme, setAccentTheme } = useStore();
   
   const [geminiInput, setGeminiInput] = useState(geminiApiKey);
   const [groqInput, setGroqInput] = useState(groqApiKey);
@@ -129,6 +137,55 @@ export function Settings() {
             )}
           </Button>
         </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-6"
+      >
+        <div className="flex items-center gap-3 border-b border-zinc-200 dark:border-zinc-800 pb-4">
+          <div className="p-2 bg-platinum-500/10 text-platinum-400 rounded-lg">
+            <Palette className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Theme Color</h3>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">Recolor the entire website instantly.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {ACCENT_THEMES.map((t) => {
+            const active = accentTheme === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setAccentTheme(t.id)}
+                className={`p-4 rounded-2xl border-2 text-left transition-all ${
+                  active
+                    ? "border-zinc-900 dark:border-platinum-200 shadow-md scale-[1.02]"
+                    : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600"
+                }`}
+              >
+                <span
+                  className="block w-10 h-10 rounded-full mb-3 shadow-inner"
+                  style={{ background: t.dot }}
+                />
+                <span className="block text-sm font-bold text-zinc-900 dark:text-zinc-50">{t.name}</span>
+                <span className="block text-xs text-zinc-500 dark:text-zinc-400">{t.hint}</span>
+                {active && (
+                  <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Active
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Applies immediately across buttons, highlights, progress bars and headings — saved automatically.
+        </p>
       </motion.div>
     </div>
   );

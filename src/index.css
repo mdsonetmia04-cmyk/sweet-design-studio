@@ -6,23 +6,57 @@
   --font-display: "Playfair Display", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Platinum — cool silver scale for the black-luxury theme (no gold) */
-  --color-platinum-50: #f7f7f8;
-  --color-platinum-100: #eeeef0;
-  --color-platinum-200: #dcdce0;
-  --color-platinum-300: #c6c7cf;
-  --color-platinum-400: #a7a9b5;
-  --color-platinum-500: #8e90a0;
-  --color-platinum-600: #71738a;
-  --color-platinum-700: #5b5d70;
-  --color-platinum-800: #4a4b5b;
-  --color-platinum-900: #3f404d;
-  --color-platinum-950: #14151b;
+  /* Accent slot — every `platinum-*` utility resolves through these
+   * runtime variables, so switching [data-accent] re-themes the whole site. */
+  --color-platinum-50: var(--acc-50);
+  --color-platinum-100: var(--acc-100);
+  --color-platinum-200: var(--acc-200);
+  --color-platinum-300: var(--acc-300);
+  --color-platinum-400: var(--acc-400);
+  --color-platinum-500: var(--acc-500);
+  --color-platinum-600: var(--acc-600);
+  --color-platinum-700: var(--acc-700);
+  --color-platinum-800: var(--acc-800);
+  --color-platinum-900: var(--acc-900);
+  --color-platinum-950: var(--acc-950);
 
   /* Deep black surfaces */
   --color-onyx-950: #0a0a0c;
   --color-onyx-900: #111114;
   --color-onyx-800: #1a1a1f;
+}
+
+/* ---- 5 selectable accent themes (no gold) ---- */
+:root,
+:root[data-accent="platinum"] {
+  --acc-50: #f7f7f8; --acc-100: #eeeef0; --acc-200: #dcdce0;
+  --acc-300: #c6c7cf; --acc-400: #a7a9b5; --acc-500: #8e90a0;
+  --acc-600: #71738a; --acc-700: #5b5d70; --acc-800: #4a4b5b;
+  --acc-900: #3f404d; --acc-950: #14151b;
+}
+:root[data-accent="emerald"] {
+  --acc-50: #ecfdf5; --acc-100: #d1fae5; --acc-200: #a7f3d0;
+  --acc-300: #6ee7b7; --acc-400: #34d399; --acc-500: #10b981;
+  --acc-600: #059669; --acc-700: #047857; --acc-800: #065f46;
+  --acc-900: #064e3b; --acc-950: #022c22;
+}
+:root[data-accent="sapphire"] {
+  --acc-50: #eff6ff; --acc-100: #dbeafe; --acc-200: #bfdbfe;
+  --acc-300: #93c5fd; --acc-400: #60a5fa; --acc-500: #3b82f6;
+  --acc-600: #2563eb; --acc-700: #1d4ed8; --acc-800: #1e40af;
+  --acc-900: #1e3a8a; --acc-950: #172554;
+}
+:root[data-accent="ruby"] {
+  --acc-50: #fff1f2; --acc-100: #ffe4e6; --acc-200: #fecdd3;
+  --acc-300: #fda4af; --acc-400: #fb7185; --acc-500: #f43f5e;
+  --acc-600: #e11d48; --acc-700: #be123c; --acc-800: #881337;
+  --acc-900: #4c0519; --acc-950: #2a0208;
+}
+:root[data-accent="amethyst"] {
+  --acc-50: #f5f3ff; --acc-100: #ede9fe; --acc-200: #ddd6fe;
+  --acc-300: #c4b5fd; --acc-400: #a78bfa; --acc-500: #8b5cf6;
+  --acc-600: #7c3aed; --acc-700: #6d28d9; --acc-800: #5b21b6;
+  --acc-900: #4c1d95; --acc-950: #2e1065;
 }
 
 body {
