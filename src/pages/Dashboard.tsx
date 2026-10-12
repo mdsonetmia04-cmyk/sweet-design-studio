@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Image as ImageIcon, Shapes, BarChart, ArrowRight, Shirt, LayoutGrid, Sticker, PersonStanding, Type } from "lucide-react";
+import { Image as ImageIcon, Shapes, BarChart, ArrowRight, Shirt, LayoutGrid, Sticker, PersonStanding, Type, BadgePercent } from "lucide-react";
 import { motion } from "motion/react";
 
 const tools = [
@@ -57,6 +57,13 @@ const tools = [
     description: "Exact-text T-shirt typography with live mockup and vector exports.",
     icon: Type,
     href: "/typography",
+    color: "bg-platinum-500/10 text-platinum-300",
+  },
+  {
+    name: "Sale & Discount Graphics",
+    description: "Bulk commercial promo prompts — tags, badges, seasonal sets.",
+    icon: BadgePercent,
+    href: "/sale",
     color: "bg-platinum-500/10 text-platinum-300",
   },
 ];

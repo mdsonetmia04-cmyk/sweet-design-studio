@@ -20,3 +20,19 @@ export function addPromptsToZip(zip: JSZip, prompts: string[]): void {
   if (prompts.length === 0) return;
   zip.file("prompts.txt", promptsToText(prompts));
 }
+
+/** Download the batch prompts as a CSV file (No, Title, Prompt). */
+export function downloadPromptsCsv(
+  filename: string,
+  prompts: string[],
+  titles?: string[]
+): void {
+  if (prompts.length === 0) return;
+  const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
+  const rows = prompts.map(
+    (p, i) => `${i + 1},${esc(titles?.[i] ?? "")},${esc(p)}`
+  );
+  const csv = `No,Title,Prompt\n${rows.join("\n")}`;
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  saveAs(blob, filename);
+}

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Copy, Check, FileText, FileText as PromptIcon } from "lucide-react";
+import { Copy, Check, FileText, FileText as PromptIcon, Table } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
-import { downloadPromptsTxt } from "@/src/lib/bulkExport";
+import { downloadPromptsTxt, downloadPromptsCsv } from "@/src/lib/bulkExport";
 import { cn } from "@/src/lib/utils";
 
 export type GeneratorMode = "prompts" | "images";
@@ -38,9 +38,11 @@ export function ModeToggle({
 export function PromptResults({
   prompts,
   filePrefix,
+  titles,
 }: {
   prompts: string[];
   filePrefix: string;
+  titles?: string[];
 }) {
   const [copiedIndex, setCopiedIndex] = useState<number | "all" | null>(null);
 
@@ -52,9 +54,12 @@ export function PromptResults({
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const copyOne = (i: number) => copyText(prompts[i], i);
+  const copyOne = (i: number) => copyText(titles ? `${titles[i]}\n\n${prompts[i]}` : prompts[i], i);
   const copyAll = () =>
-    copyText(prompts.map((p, i) => `[${i + 1}]\n${p}`).join("\n\n"), "all");
+    copyText(
+      prompts.map((p, i) => `[${i + 1}]${titles ? ` ${titles[i]}` : ""}\n${p}`).join("\n\n"),
+      "all"
+    );
 
   return (
     <div className="space-y-5 w-full">
@@ -79,6 +84,13 @@ export function PromptResults({
           >
             <FileText className="w-4 h-4 mr-2" /> Download TXT
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => downloadPromptsCsv(`${filePrefix}_prompts.csv`, prompts, titles)}
+          >
+            <Table className="w-4 h-4 mr-2" /> CSV
+          </Button>
         </div>
       </div>
 
@@ -101,6 +113,11 @@ export function PromptResults({
                 {copiedIndex === i ? "Copied" : "Copy"}
               </Button>
             </div>
+            {titles?.[i] && (
+              <h4 className="font-display text-base font-semibold text-zinc-900 dark:text-platinum-100 mb-2">
+                {titles[i]}
+              </h4>
+            )}
             <p className="text-[15px] leading-relaxed text-zinc-800 dark:text-zinc-100 whitespace-pre-wrap">
               {prompt}
             </p>

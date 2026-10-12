@@ -13,7 +13,8 @@ import {
   LayoutGrid,
   Sticker,
   PersonStanding,
-  Type
+  Type,
+  BadgePercent
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -27,6 +28,7 @@ const navItems = [
   { name: "Stickers", href: "/sticker", icon: Sticker },
   { name: "Silhouettes", href: "/silhouette", icon: PersonStanding },
   { name: "Typography Studio", href: "/typography", icon: Type },
+  { name: "Sale & Discount", href: "/sale", icon: BadgePercent },
   { name: "History", href: "/history", icon: History },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
