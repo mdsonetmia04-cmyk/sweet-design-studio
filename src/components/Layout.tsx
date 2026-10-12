@@ -12,7 +12,8 @@ import {
   Settings,
   LayoutGrid,
   Sticker,
-  PersonStanding
+  PersonStanding,
+  Type
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -25,6 +26,7 @@ const navItems = [
   { name: "Seamless Patterns", href: "/pattern", icon: LayoutGrid },
   { name: "Stickers", href: "/sticker", icon: Sticker },
   { name: "Silhouettes", href: "/silhouette", icon: PersonStanding },
+  { name: "Typography Studio", href: "/typography", icon: Type },
   { name: "History", href: "/history", icon: History },
   { name: "Settings", href: "/settings", icon: Settings },
 ];

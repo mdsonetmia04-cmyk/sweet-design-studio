@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Image as ImageIcon, Shapes, BarChart, ArrowRight, Shirt, LayoutGrid, Sticker, PersonStanding } from "lucide-react";
+import { Image as ImageIcon, Shapes, BarChart, ArrowRight, Shirt, LayoutGrid, Sticker, PersonStanding, Type } from "lucide-react";
 import { motion } from "motion/react";
 
 const tools = [
@@ -50,6 +50,13 @@ const tools = [
     description: "Silhouette prompt packs in bulk with Adobe Stock metadata.",
     icon: PersonStanding,
     href: "/silhouette",
+    color: "bg-platinum-500/10 text-platinum-300",
+  },
+  {
+    name: "Typography Studio",
+    description: "Exact-text T-shirt typography with live mockup and vector exports.",
+    icon: Type,
+    href: "/typography",
     color: "bg-platinum-500/10 text-platinum-300",
   },
 ];

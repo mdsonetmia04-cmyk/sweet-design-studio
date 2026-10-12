@@ -13,6 +13,7 @@ import { TShirtGenerator } from "./pages/TShirtGenerator";
 import { PatternGenerator } from "./pages/PatternGenerator";
 import { StickerGenerator } from "./pages/StickerGenerator";
 import { SilhouetteGenerator } from "./pages/SilhouetteGenerator";
+import { TypographyStudio } from "./pages/TypographyStudio";
 import { History } from "./pages/History";
 import { Settings } from "./pages/Settings";
 
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="pattern" element={<PatternGenerator />} />
           <Route path="sticker" element={<StickerGenerator />} />
           <Route path="silhouette" element={<SilhouetteGenerator />} />
+          <Route path="typography" element={<TypographyStudio />} />
           <Route path="history" element={<History />} />
           <Route path="settings" element={<Settings />} />
         </Route>
