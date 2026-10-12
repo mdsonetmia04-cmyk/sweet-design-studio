@@ -34,11 +34,11 @@ export function Layout() {
   const location = useLocation();
 
   return (
-    <div className={cn("min-h-screen flex", theme === "dark" ? "dark bg-zinc-950 text-zinc-50" : "bg-zinc-50 text-zinc-900")}>
+    <div className={cn("min-h-screen flex", theme === "dark" ? "dark bg-onyx-950 text-zinc-50" : "bg-platinum-50 text-zinc-900")}>
       {/* Sidebar */}
-      <aside className="w-64 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex flex-col">
-        <div className="h-16 flex items-center px-6 border-b border-zinc-200 dark:border-zinc-800">
-          <span className="text-xl font-bold bg-gradient-to-r from-emerald-500 to-emerald-700 bg-clip-text text-transparent">
+      <aside className="w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-onyx-900 flex flex-col">
+        <div className="h-16 flex items-center px-6 border-b border-zinc-200 dark:border-white/10">
+          <span className="font-display text-xl font-bold bg-gradient-to-r from-platinum-100 via-platinum-300 to-platinum-500 bg-clip-text text-transparent">
             Sweet Design Studio
           </span>
         </div>
@@ -53,8 +53,8 @@ export function Layout() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-colors",
                   isActive 
-                    ? "bg-emerald-100 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-400" 
-                    : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/50"
+                    ? "bg-platinum-200 text-zinc-950 dark:bg-platinum-200/15 dark:text-platinum-100 font-semibold" 
+                    : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-white/5"
                 )}
               >
                 <item.icon className="w-5 h-5" />

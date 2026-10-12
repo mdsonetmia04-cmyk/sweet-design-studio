@@ -1,11 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Platinum — cool silver scale for the black-luxury theme (no gold) */
+  --color-platinum-50: #f7f7f8;
+  --color-platinum-100: #eeeef0;
+  --color-platinum-200: #dcdce0;
+  --color-platinum-300: #c6c7cf;
+  --color-platinum-400: #a7a9b5;
+  --color-platinum-500: #8e90a0;
+  --color-platinum-600: #71738a;
+  --color-platinum-700: #5b5d70;
+  --color-platinum-800: #4a4b5b;
+  --color-platinum-900: #3f404d;
+  --color-platinum-950: #14151b;
+
+  /* Deep black surfaces */
+  --color-onyx-950: #0a0a0c;
+  --color-onyx-900: #111114;
+  --color-onyx-800: #1a1a1f;
 }
 
 body {
   font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
 }

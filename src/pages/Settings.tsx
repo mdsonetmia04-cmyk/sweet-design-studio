@@ -32,7 +32,7 @@ export function Settings() {
         className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-6"
       >
         <div className="flex items-center gap-3 border-b border-zinc-200 dark:border-zinc-800 pb-4">
-          <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-lg">
+          <div className="p-2 bg-platinum-500/10 text-platinum-500 rounded-lg">
             <Key className="w-5 h-5" />
           </div>
           <div>
@@ -51,7 +51,7 @@ export function Settings() {
               onChange={(e) => setGeminiInput(e.target.value)}
             />
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Used for generating images (Logos, Icons, Infographics, T-Shirts). Get your key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-emerald-500 hover:underline">Google AI Studio</a>.
+              Used for generating images (Logos, Icons, Infographics, T-Shirts). Get your key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-platinum-500 hover:underline">Google AI Studio</a>.
             </p>
           </div>
 
@@ -64,7 +64,7 @@ export function Settings() {
               onChange={(e) => setGroqInput(e.target.value)}
             />
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Used for fast text processing and prompt enhancement. Get your key from <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" className="text-emerald-500 hover:underline">Groq Console</a>.
+              Used for fast text processing and prompt enhancement. Get your key from <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" className="text-platinum-500 hover:underline">Groq Console</a>.
             </p>
           </div>
         </div>

@@ -1,9 +1,10 @@
 import React, { useState, useRef } from "react";
 import { useStore } from "@/src/store/useStore";
 import { generateImage } from "@/src/lib/gemini";
+import { addPromptsToZip, downloadPromptsTxt } from "@/src/lib/bulkExport";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
-import { Loader2, Download, Copy, Image as ImageIcon, Upload, X, CheckCircle2 } from "lucide-react";
+import { Loader2, Download, Copy, Image as ImageIcon, Upload, X, CheckCircle2, FileText } from "lucide-react";
 import { motion } from "motion/react";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
@@ -21,6 +22,7 @@ export function LogoGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [results, setResults] = useState<string[]>([]);
+  const [usedPrompts, setUsedPrompts] = useState<string[]>([]);
   
   const addHistory = useStore((state) => state.addHistory);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,9 +39,11 @@ export function LogoGenerator() {
     if (!brandName) return;
     setIsGenerating(true);
     setResults([]);
+    setUsedPrompts([]);
     setProgress({ current: 0, total: count });
     
     const generatedImages: string[] = [];
+    const generatedPrompts: string[] = [];
     
     try {
       let basePromptText = `A professional logo design for a brand named "${brandName}". Style: ${style}. Color palette: ${colors || "designer's choice"}. Clean, vector-style flat design, white background, high quality, minimal details.`;
@@ -67,6 +71,8 @@ export function LogoGenerator() {
         const currentPrompt = referenceImage ? basePrompt : `${basePromptText} Variation ${i + 1}.`;
         const imageUrl = await generateImage(currentPrompt);
         generatedImages.push(imageUrl);
+        generatedPrompts.push(typeof currentPrompt === 'string' ? currentPrompt : currentPrompt.parts[0].text + " [reference image attached]");
+        setUsedPrompts([...generatedPrompts]);
         setResults([...generatedImages]);
         setProgress({ current: i + 1, total: count });
         
@@ -100,6 +106,7 @@ export function LogoGenerator() {
       zip.file(`${brandName.replace(/\s+/g, "_").toLowerCase()}_logo_${index + 1}.png`, base64Data, { base64: true });
     });
     
+    addPromptsToZip(zip, usedPrompts);
     const content = await zip.generateAsync({ type: "blob" });
     saveAs(content, `${brandName.replace(/\s+/g, "_").toLowerCase()}_logos.zip`);
   };
@@ -109,11 +116,20 @@ export function LogoGenerator() {
     navigator.clipboard.writeText(prompt);
   };
 
+  const handleCopyAllPrompts = () => {
+    if (usedPrompts.length === 0) return;
+    navigator.clipboard.writeText(usedPrompts.map((p, i) => `[${i + 1}]\n${p}`).join("\n\n"));
+  };
+
+  const handleDownloadPromptsTxt = () => {
+    downloadPromptsTxt(`${brandName.replace(/\s+/g, "_").toLowerCase()}_prompts.txt`, usedPrompts);
+  };
+
   return (
     <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-12 gap-8">
       <div className="xl:col-span-4 space-y-6 bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm h-fit">
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">AI Logo Generator</h2>
+          <h2 className="font-display text-2xl font-bold text-zinc-900 dark:text-platinum-100 mb-2">AI Logo Generator</h2>
           <p className="text-zinc-500 dark:text-zinc-400">Create stunning logos in seconds.</p>
         </div>
 
@@ -136,7 +152,7 @@ export function LogoGenerator() {
                   onClick={() => setStyle(s)}
                   className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors border ${
                     style === s
-                      ? "bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400"
+                      ? "bg-platinum-50 border-platinum-200 text-platinum-700 dark:bg-platinum-900/20 dark:border-platinum-800 dark:text-platinum-400"
                       : "bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900"
                   }`}
                 >
@@ -195,7 +211,7 @@ export function LogoGenerator() {
             <select
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="flex h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platinum-600 focus-visible:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:focus-visible:ring-platinum-500"
             >
               {COUNTS.map((c) => (
                 <option key={c} value={c}>{c} {c === 1 ? 'Design' : 'Designs'}</option>
@@ -229,7 +245,7 @@ export function LogoGenerator() {
             </div>
             <div className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-2 overflow-hidden">
               <div 
-                className="bg-emerald-500 h-2 rounded-full transition-all duration-300" 
+                className="bg-platinum-500 h-2 rounded-full transition-all duration-300" 
                 style={{ width: `${(progress.current / progress.total) * 100}%` }}
               ></div>
             </div>
@@ -240,12 +256,18 @@ export function LogoGenerator() {
           <div className="space-y-6 w-full">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                <CheckCircle2 className="w-5 h-5 text-platinum-500" />
                 Generated Logos ({results.length})
               </h3>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={handleCopyPrompt}>
                   <Copy className="w-4 h-4 mr-2" /> Copy Prompt
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleCopyAllPrompts} disabled={usedPrompts.length === 0}>
+                  <Copy className="w-4 h-4 mr-2" /> Copy All
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleDownloadPromptsTxt} disabled={usedPrompts.length === 0}>
+                  <FileText className="w-4 h-4 mr-2" /> Prompts TXT
                 </Button>
                 <Button size="sm" onClick={handleDownloadZip}>
                   <Download className="w-4 h-4 mr-2" /> 

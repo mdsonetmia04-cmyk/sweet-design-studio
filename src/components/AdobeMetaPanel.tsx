@@ -16,10 +16,10 @@ export function AdobeMetaPanel({ meta }: { meta: AdobeMeta }) {
   };
 
   return (
-    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-5 space-y-4">
+    <div className="bg-platinum-100 dark:bg-onyx-800/60 border border-platinum-300 dark:border-platinum-800/50 rounded-2xl p-5 space-y-4">
       <div className="flex items-center gap-2">
-        <Info className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-        <h4 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+        <Info className="w-4 h-4 text-platinum-500 dark:text-platinum-400" />
+        <h4 className="text-sm font-semibold text-platinum-800 dark:text-platinum-300">
           Adobe Stock Metadata (starting point — review before uploading)
         </h4>
       </div>
@@ -61,7 +61,7 @@ export function AdobeMetaPanel({ meta }: { meta: AdobeMeta }) {
               key={i}
               className={`px-2 py-1 rounded-md text-xs border ${
                 i < 7
-                  ? "bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400"
+                  ? "bg-platinum-50 border-platinum-200 text-platinum-700 dark:bg-platinum-900/20 dark:border-platinum-800 dark:text-platinum-400"
                   : "bg-white border-zinc-200 text-zinc-600 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400"
               }`}
               title={i < 7 ? "Weighted more heavily by Adobe search" : undefined}
@@ -72,7 +72,7 @@ export function AdobeMetaPanel({ meta }: { meta: AdobeMeta }) {
         </div>
       </div>
 
-      <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+      <p className="text-xs text-platinum-700 dark:text-platinum-400 leading-relaxed">
         {GENERATIVE_AI_DISCLOSURE_NOTE}
       </p>
     </div>
