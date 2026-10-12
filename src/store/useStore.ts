@@ -34,6 +34,8 @@ interface AppState {
   setGeminiApiKey: (key: string) => void;
   groqApiKey: string;
   setGroqApiKey: (key: string) => void;
+  promptInstructions: string;
+  setPromptInstructions: (instructions: string) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -58,6 +60,8 @@ export const useStore = create<AppState>()(
       setGeminiApiKey: (key) => set({ geminiApiKey: key }),
       groqApiKey: "",
       setGroqApiKey: (key) => set({ groqApiKey: key }),
+      promptInstructions: "",
+      setPromptInstructions: (instructions) => set({ promptInstructions: instructions }),
     }),
     {
       name: "sweet-design-studio-storage",

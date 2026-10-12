@@ -1,0 +1,146 @@
+/**
+ * Detailed prompt builder for Prompts mode.
+ * Produces rich, copy-ready prompts for external AI image tools
+ * (Midjourney, Leonardo, Firefly, etc.), honoring the user's
+ * custom instructions from Settings.
+ */
+
+export type PromptKind =
+  | "logo"
+  | "icon"
+  | "infographic"
+  | "tshirt"
+  | "pattern"
+  | "sticker"
+  | "silhouette";
+
+export interface PromptInputs {
+  subject: string;
+  style: string;
+  extra?: string;
+  extra2?: string;
+  useMockup?: boolean;
+}
+
+const QUALITY =
+  "ultra-detailed, professional quality, crisp clean edges, high resolution, balanced composition";
+
+function instructionsBlock(instructions: string): string {
+  const trimmed = instructions.trim();
+  return trimmed ? `\nCustom instructions: ${trimmed}` : "";
+}
+
+function variationBlock(variation: number, total: number): string {
+  if (total <= 1) return "";
+  return `\nVariation note: this is variation ${variation} of ${total} — create a distinctly different composition from the other variations while keeping the same subject and style.`;
+}
+
+const AVOID_TEXT =
+  "Avoid: blurry details, low resolution, watermarks, garbled or misspelled text, distorted proportions.";
+
+export function buildDetailedPrompt(
+  kind: PromptKind,
+  inputs: PromptInputs,
+  instructions: string,
+  variation: number,
+  total: number
+): string {
+  const { subject, style, extra = "", extra2 = "" } = inputs;
+  const v = variationBlock(variation, total);
+  const custom = instructionsBlock(instructions);
+
+  switch (kind) {
+    case "logo": {
+      return (
+        `Professional logo design for a brand named "${subject}". ` +
+        `Style: ${style}. ` +
+        `Color palette: ${extra || "designer's choice"}. ` +
+        `Composition: a single iconic mark, centered with generous negative space, flat vector aesthetic, clean geometric shapes, memorable and scalable. ` +
+        `Details: smooth curves, consistent stroke weight, no gradients unless the style demands it, no photographic elements. ` +
+        `All text spelled correctly in plain English — no gibberish lettering. ` +
+        `Quality: ${QUALITY}, white background, no watermark.` +
+        `\n${AVOID_TEXT}` +
+        custom +
+        v
+      );
+    }
+    case "icon": {
+      return (
+        `A cohesive set of 16 matching vector icons about "${subject}", arranged in a clean 4x4 grid. ` +
+        `Style: ${style}. ` +
+        `Primary color: ${extra || "monochrome"}. ` +
+        `Every icon shares the same line weight, corner radius, padding and design language. ` +
+        `Details: simple instantly-recognizable metaphors, flat vector style, consistent visual rhythm across the set. ` +
+        `Quality: ${QUALITY}, white background, no watermark.` +
+        `\n${AVOID_TEXT}` +
+        custom +
+        v
+      );
+    }
+    case "infographic": {
+      return (
+        `Modern professional infographic layout about "${subject}". ` +
+        `Structure: a bold header title, 4 to 6 clearly defined sections with icons, charts, statistics and data callouts, logical visual flow from top to bottom. ` +
+        `Style: clean typography with clear hierarchy, generous whitespace, flat vector illustrations, one limited harmonious color palette. ` +
+        `All labels and numbers must be real, correctly spelled English words — absolutely no gibberish or fake text. ` +
+        `Quality: ${QUALITY}, white background, no watermark.` +
+        `\n${AVOID_TEXT}` +
+        custom +
+        v
+      );
+    }
+    case "tshirt": {
+      const textBit = extra ? ` The design must include the text/slogan: "${extra}".` : "";
+      const colorBit = extra2 ? ` Color palette: ${extra2}.` : "";
+      const presentation = inputs.useMockup
+        ? "Presented realistically as a mockup on a blank t-shirt, natural fabric folds and studio lighting."
+        : "Isolated flat vector graphic on a solid white background, print-ready, 300 DPI look.";
+      return (
+        `Creative t-shirt graphic design. Theme: "${subject}". ` +
+        `Style: ${style}.` +
+        textBit +
+        colorBit +
+        ` ${presentation} ` +
+        `Composition: bold central artwork with strong silhouette readability, limited screen-print-friendly color palette. ` +
+        `Any text spelled correctly — no gibberish lettering. ` +
+        `Quality: ${QUALITY}, no watermark.` +
+        `\n${AVOID_TEXT}` +
+        custom +
+        v
+      );
+    }
+    case "pattern": {
+      return (
+        `Seamless repeating pattern of "${subject}". ` +
+        `Style: ${style}. ` +
+        `Color palette: ${extra || "harmonious modern colors"}. ` +
+        `Perfectly tileable with no visible seams, motifs evenly distributed at varied scales, flat vector style. ` +
+        `Quality: ${QUALITY}, clean background, no watermark.` +
+        `\n${AVOID_TEXT}` +
+        custom +
+        v
+      );
+    }
+    case "sticker": {
+      return (
+        `Single die-cut sticker of "${subject}". ` +
+        `Style: ${style}. ` +
+        `Thick white sticker border, bold outlines, vibrant flat colors, centered on a plain white background, sticker-sheet aesthetic. ` +
+        `Quality: ${QUALITY}, no watermark.` +
+        `\n${AVOID_TEXT}` +
+        custom +
+        v
+      );
+    }
+    case "silhouette": {
+      return (
+        `Dramatic black silhouette of "${subject}" in a ${style} pose. ` +
+        `Solid black shape on a ${extra || "clean gradient sunset sky"} background, high contrast, crisp clean edges, minimalist vector style, no text. ` +
+        `Quality: ${QUALITY}, no watermark.` +
+        `\n${AVOID_TEXT}` +
+        custom +
+        v
+      );
+    }
+  }
+}

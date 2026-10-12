@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import { useStore } from "@/src/store/useStore";
 import { generateImage } from "@/src/lib/gemini";
+import { buildDetailedPrompt } from "@/src/lib/promptBuilder";
+import { ModeToggle, PromptResults, type GeneratorMode } from "@/src/components/PromptMode";
 import { addPromptsToZip, downloadPromptsTxt } from "@/src/lib/bulkExport";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
@@ -23,11 +25,13 @@ export function TShirtGenerator() {
   const [referenceImage, setReferenceImage] = useState<{ url: string; file: File } | null>(null);
   
   const [isGenerating, setIsGenerating] = useState(false);
+  const [mode, setMode] = useState<GeneratorMode>("prompts");
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [results, setResults] = useState<string[]>([]);
   const [usedPrompts, setUsedPrompts] = useState<string[]>([]);
   
   const addHistory = useStore((state) => state.addHistory);
+  const promptInstructions = useStore((state) => state.promptInstructions);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,6 +108,15 @@ export function TShirtGenerator() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleGeneratePrompts = () => {
+    const list: string[] = [];
+    for (let i = 0; i < count; i++) {
+      list.push(buildDetailedPrompt("tshirt", { subject: theme, style, extra: text, extra2: colors, useMockup }, promptInstructions, i + 1, count));
+    }
+    setUsedPrompts(list);
+    setResults([]);
   };
 
   const handleDownloadZip = async () => {
@@ -267,12 +280,18 @@ export function TShirtGenerator() {
             </div>
           </div>
 
+          <div className="pt-2">
+            <ModeToggle mode={mode} onChange={setMode} />
+          </div>
+
           <Button
             className="w-full h-12 text-base mt-4"
-            onClick={handleGenerate}
+            onClick={mode === "prompts" ? handleGeneratePrompts : handleGenerate}
             disabled={isGenerating}
           >
-            {isGenerating ? (
+            {mode === "prompts" ? (
+              "Generate Prompts"
+            ) : isGenerating ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Generating ({progress.current}/{progress.total})...
@@ -285,6 +304,18 @@ export function TShirtGenerator() {
       </div>
 
       <div className="xl:col-span-8 flex flex-col min-h-[600px] bg-zinc-100 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 border-dashed p-6">
+        {mode === "prompts" ? (
+          usedPrompts.length > 0 ? (
+            <PromptResults prompts={usedPrompts} filePrefix="tshirt_design" />
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 text-zinc-500 dark:text-zinc-400">
+              <FileText className="w-16 h-16 mx-auto opacity-20" />
+              <p className="max-w-sm">Your detailed prompts will appear here — readable, copy-ready, and built from your Settings instructions.</p>
+            </div>
+          )
+        ) : (
+          <>
+
         {isGenerating && progress.current < progress.total && (
           <div className="w-full max-w-md mx-auto mb-8 bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
             <div className="flex justify-between text-sm mb-2">
@@ -352,6 +383,8 @@ export function TShirtGenerator() {
             <p>Your generated T-Shirt designs will appear here</p>
           </div>
         ) : null}
+                </>
+        )}
       </div>
     </div>
   );
