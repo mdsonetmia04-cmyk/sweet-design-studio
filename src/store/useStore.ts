@@ -14,7 +14,7 @@ const storage: StateStorage = {
   },
 };
 
-export type GenerationType = "logo" | "icon" | "infographic" | "tshirt";
+export type GenerationType = "logo" | "icon" | "infographic" | "tshirt" | "pattern" | "sticker" | "silhouette";
 
 export interface GenerationHistory {
   id: string;

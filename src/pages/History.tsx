@@ -1,6 +1,6 @@
 import { useStore } from "@/src/store/useStore";
 import { Button } from "@/src/components/ui/Button";
-import { Download, Trash2, Image as ImageIcon, Shapes, BarChart, Shirt } from "lucide-react";
+import { Download, Trash2, Image as ImageIcon, Shapes, BarChart, Shirt, LayoutGrid, Sticker, PersonStanding } from "lucide-react";
 import { motion } from "motion/react";
 import { saveAs } from "file-saver";
 
@@ -9,6 +9,9 @@ const typeIcons: Record<string, any> = {
   icon: Shapes,
   infographic: BarChart,
   tshirt: Shirt,
+  pattern: LayoutGrid,
+  sticker: Sticker,
+  silhouette: PersonStanding,
 };
 
 export function History() {

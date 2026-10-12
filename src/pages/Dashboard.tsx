@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Image as ImageIcon, Shapes, BarChart, ArrowRight, Shirt } from "lucide-react";
+import { Image as ImageIcon, Shapes, BarChart, ArrowRight, Shirt, LayoutGrid, Sticker, PersonStanding } from "lucide-react";
 import { motion } from "motion/react";
 
 const tools = [
@@ -30,6 +30,27 @@ const tools = [
     icon: Shirt,
     href: "/tshirt",
     color: "bg-orange-500/10 text-orange-500",
+  },
+  {
+    name: "Seamless Patterns",
+    description: "Tileable patterns for backgrounds, textiles and stock uploads.",
+    icon: LayoutGrid,
+    href: "/pattern",
+    color: "bg-teal-500/10 text-teal-500",
+  },
+  {
+    name: "Sticker Generator",
+    description: "Die-cut stickers in bulk with Adobe Stock metadata.",
+    icon: Sticker,
+    href: "/sticker",
+    color: "bg-pink-500/10 text-pink-500",
+  },
+  {
+    name: "Silhouette Generator",
+    description: "Bold silhouettes with poses — ready for stock and merch.",
+    icon: PersonStanding,
+    href: "/silhouette",
+    color: "bg-zinc-500/10 text-zinc-500",
   },
 ];
 

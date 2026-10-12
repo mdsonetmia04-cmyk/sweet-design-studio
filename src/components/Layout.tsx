@@ -9,7 +9,10 @@ import {
   Moon, 
   Sun,
   Shirt,
-  Settings
+  Settings,
+  LayoutGrid,
+  Sticker,
+  PersonStanding
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -19,6 +22,9 @@ const navItems = [
   { name: "Icon Pack", href: "/icon", icon: Shapes },
   { name: "Infographics", href: "/infographic", icon: BarChart },
   { name: "T-Shirt Design", href: "/tshirt", icon: Shirt },
+  { name: "Seamless Patterns", href: "/pattern", icon: LayoutGrid },
+  { name: "Stickers", href: "/sticker", icon: Sticker },
+  { name: "Silhouettes", href: "/silhouette", icon: PersonStanding },
   { name: "History", href: "/history", icon: History },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
