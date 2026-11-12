@@ -78,20 +78,6 @@ export function Settings() {
             </p>
           </div>
         </div>
-
-        <div className="pt-4 flex justify-end">
-          <Button onClick={handleSave} className="w-full sm:w-auto">
-            {isSaved ? (
-              <>
-                <CheckCircle2 className="w-4 h-4 mr-2" /> Saved
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" /> Save Settings
-              </>
-            )}
-          </Button>
-        </div>
       </motion.div>
 
       <motion.div
@@ -122,20 +108,6 @@ export function Settings() {
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
             Write once, reuse everywhere — style rules, aspect-ratio flags, things to always include or avoid.
           </p>
-        </div>
-
-        <div className="pt-2 flex justify-end">
-          <Button onClick={handleSave} className="w-full sm:w-auto">
-            {isSaved ? (
-              <>
-                <CheckCircle2 className="w-4 h-4 mr-2" /> Saved
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" /> Save Settings
-              </>
-            )}
-          </Button>
         </div>
       </motion.div>
 
@@ -187,6 +159,20 @@ export function Settings() {
           Applies immediately across buttons, highlights, progress bars and headings — saved automatically.
         </p>
       </motion.div>
+
+      <div className="flex justify-end pt-2">
+        <Button onClick={handleSave} className="w-full sm:w-auto h-12 px-8 text-base">
+          {isSaved ? (
+            <>
+              <CheckCircle2 className="w-4 h-4 mr-2" /> Saved
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4 mr-2" /> Save Settings
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,12 @@
 import React, { useState, useRef } from "react";
 import { useStore } from "@/src/store/useStore";
 import { generateImage } from "@/src/lib/gemini";
-import { buildDetailedPrompt } from "@/src/lib/promptBuilder";
-import { ModeToggle, PromptResults, type GeneratorMode } from "@/src/components/PromptMode";
+import { buildDetailedPrompt, buildImagePrompt } from "@/src/lib/promptBuilder";
+import { ModeToggle, MoreOptions, PromptResults, type GeneratorMode } from "@/src/components/PromptMode";
 import { addPromptsToZip, downloadPromptsTxt } from "@/src/lib/bulkExport";
+import { buildAdobeMeta } from "@/src/lib/adobeMeta";
+import { AdobeMetaPanel } from "@/src/components/AdobeMetaPanel";
+
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { Loader2, Download, Copy, Image as ImageIcon, Upload, X, CheckCircle2, FileText } from "lucide-react";
@@ -29,6 +32,7 @@ export function LogoGenerator() {
   
   const addHistory = useStore((state) => state.addHistory);
   const promptInstructions = useStore((state) => state.promptInstructions);
+  const meta = brandName ? buildAdobeMeta("logo", brandName, style, colors) : null;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,17 +54,18 @@ export function LogoGenerator() {
     const generatedPrompts: string[] = [];
     
     try {
-      let basePromptText = `A professional logo design for a brand named "${brandName}". Style: ${style}. Color palette: ${colors || "designer's choice"}. Clean, vector-style flat design, white background, high quality, minimal details.`;
-      
-      let basePrompt: any = basePromptText;
-      
+      const imagePromptText = (variation: number) =>
+        buildImagePrompt("logo", { subject: brandName, style, extra: colors }, variation, count);
+
+      let basePrompt: any = imagePromptText(1);
+
       if (referenceImage) {
         const buffer = await referenceImage.file.arrayBuffer();
         const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
         
         basePrompt = {
           parts: [
-            { text: basePromptText },
+            { text: imagePromptText(1) },
             {
               inlineData: {
                 data: base64,
@@ -72,7 +77,7 @@ export function LogoGenerator() {
       }
 
       for (let i = 0; i < count; i++) {
-        const currentPrompt = referenceImage ? basePrompt : `${basePromptText} Variation ${i + 1}.`;
+        const currentPrompt = referenceImage ? basePrompt : imagePromptText(i + 1);
         const imageUrl = await generateImage(currentPrompt);
         generatedImages.push(imageUrl);
         generatedPrompts.push(typeof currentPrompt === 'string' ? currentPrompt : currentPrompt.parts[0].text + " [reference image attached]");
@@ -122,11 +127,6 @@ export function LogoGenerator() {
     addPromptsToZip(zip, usedPrompts);
     const content = await zip.generateAsync({ type: "blob" });
     saveAs(content, `${brandName.replace(/\s+/g, "_").toLowerCase()}_logos.zip`);
-  };
-
-  const handleCopyPrompt = () => {
-    const prompt = `A professional logo design for a brand named "${brandName}". Style: ${style}. Color palette: ${colors || "designer's choice"}. Clean, vector-style flat design, white background, high quality, minimal details.`;
-    navigator.clipboard.writeText(prompt);
   };
 
   const handleCopyAllPrompts = () => {
@@ -184,40 +184,42 @@ export function LogoGenerator() {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Reference Image (Optional)</label>
-            {!referenceImage ? (
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl p-6 flex flex-col items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors cursor-pointer"
-              >
-                <Upload className="w-8 h-8 mb-2 opacity-50" />
-                <span className="text-sm font-medium">Click to upload reference</span>
-                <span className="text-xs mt-1 opacity-70">PNG, JPG up to 5MB</span>
-              </div>
-            ) : (
-              <div className="relative rounded-xl border border-zinc-200 dark:border-zinc-800 p-2 flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50">
-                <img src={referenceImage.url} alt="Reference" className="w-12 h-12 rounded-lg object-cover" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50 truncate">{referenceImage.file.name}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{(referenceImage.file.size / 1024 / 1024).toFixed(2)} MB</p>
-                </div>
-                <button 
-                  onClick={() => setReferenceImage(null)}
-                  className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg text-zinc-500 transition-colors"
+          <MoreOptions label="More options — reference image">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Reference Image (Optional)</label>
+              {!referenceImage ? (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl p-6 flex flex-col items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors cursor-pointer"
                 >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/png, image/jpeg, image/webp"
-              onChange={handleFileChange}
-            />
-          </div>
+                  <Upload className="w-8 h-8 mb-2 opacity-50" />
+                  <span className="text-sm font-medium">Click to upload reference</span>
+                  <span className="text-xs mt-1 opacity-70">PNG, JPG up to 5MB</span>
+                </div>
+              ) : (
+                <div className="relative rounded-xl border border-zinc-200 dark:border-zinc-800 p-2 flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50">
+                  <img src={referenceImage.url} alt="Reference" className="w-12 h-12 rounded-lg object-cover" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50 truncate">{referenceImage.file.name}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{(referenceImage.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                  <button
+                    onClick={() => setReferenceImage(null)}
+                    className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg text-zinc-500 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/png, image/jpeg, image/webp"
+                onChange={handleFileChange}
+              />
+            </div>
+          </MoreOptions>
 
           <div className="space-y-2 pt-2">
             <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Number of Designs</label>
@@ -252,6 +254,13 @@ export function LogoGenerator() {
               "Generate Logo"
             )}
           </Button>
+
+          {meta && (
+            <AdobeMetaPanel
+              meta={meta}
+              filename={`${brandName.replace(/\s+/g, "_").toLowerCase()}_logo.png`}
+            />
+          )}
         </div>
       </div>
 
@@ -291,9 +300,6 @@ export function LogoGenerator() {
                 Generated Logos ({results.length})
               </h3>
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" onClick={handleCopyPrompt}>
-                  <Copy className="w-4 h-4 mr-2" /> Copy Prompt
-                </Button>
                 <Button variant="outline" size="sm" onClick={handleCopyAllPrompts} disabled={usedPrompts.length === 0}>
                   <Copy className="w-4 h-4 mr-2" /> Copy All
                 </Button>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useStore } from "@/src/store/useStore";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
-import { PromptResults } from "@/src/components/PromptMode";
+import { MoreOptions, PromptResults } from "@/src/components/PromptMode";
 import {
   buildSalePrompt,
   SALE_CATEGORIES,
@@ -12,7 +12,10 @@ import {
   PRESET_LABEL_WORDS,
   type SaleInputs,
 } from "@/src/lib/salePrompts";
-import { BadgePercent, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { buildAdobeMeta } from "@/src/lib/adobeMeta";
+import { AdobeMetaPanel } from "@/src/components/AdobeMetaPanel";
+
+import { BadgePercent, Loader2, Sparkles } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 const COUNTS = [10, 20, 30, 40, 50, 100];
@@ -104,6 +107,7 @@ export function SaleDiscountGenerator() {
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1000000));
 
   const promptInstructions = useStore((state) => state.promptInstructions);
+  const meta = buildAdobeMeta("sale", `${event} ${collectionType}`, style, labelWords);
 
   const collectInputs = (): SaleInputs => ({
     category,
@@ -184,27 +188,29 @@ export function SaleDiscountGenerator() {
           <ColorRow label="Primary Color" value={primaryColor} onChange={setPrimaryColor} />
           <ColorRow label="Accent Color" value={accentColor} onChange={setAccentColor} />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Background</label>
-            <Segmented
-              options={[{ value: "white", label: "White" }, { value: "transparent", label: "Transparent" }]}
-              value={background}
-              onChange={setBackground}
-            />
-          </div>
+          <MoreOptions label="More options — background & format">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Background</label>
+              <Segmented
+                options={[{ value: "white", label: "White" }, { value: "transparent", label: "Transparent" }]}
+                value={background}
+                onChange={setBackground}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Output Format</label>
-            <Segmented
-              options={[
-                { value: "vector", label: "Vector-style" },
-                { value: "png", label: "PNG-style" },
-                { value: "jpg", label: "JPG-style" },
-              ]}
-              value={format}
-              onChange={setFormat}
-            />
-          </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Output Format</label>
+              <Segmented
+                options={[
+                  { value: "vector", label: "Vector-style" },
+                  { value: "png", label: "PNG-style" },
+                  { value: "jpg", label: "JPG-style" },
+                ]}
+                value={format}
+                onChange={setFormat}
+              />
+            </div>
+          </MoreOptions>
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Single Design or Set</label>
@@ -336,21 +342,14 @@ export function SaleDiscountGenerator() {
                 </>
               )}
             </Button>
-            <Button
-              variant="outline"
-              className="h-12 px-4"
-              title="Regenerate with new variations"
-              onClick={() => handleGenerate()}
-              disabled={isGenerating || prompts.length === 0}
-            >
-              <RefreshCw className="w-5 h-5" />
-            </Button>
           </div>
 
           <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed border-t border-zinc-200 dark:border-zinc-800 pt-4">
             Prompts follow Adobe Stock-oriented commercial direction. Generated artwork is not
             automatically approved — always check originality, IP rights and current submission policies.
           </p>
+
+          <AdobeMetaPanel meta={meta} filename="sale_discount_graphics.png" />
         </div>
       </div>
 

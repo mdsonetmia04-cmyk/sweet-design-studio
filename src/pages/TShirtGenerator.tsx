@@ -1,9 +1,12 @@
 import React, { useState, useRef } from "react";
 import { useStore } from "@/src/store/useStore";
 import { generateImage } from "@/src/lib/gemini";
-import { buildDetailedPrompt } from "@/src/lib/promptBuilder";
-import { ModeToggle, PromptResults, type GeneratorMode } from "@/src/components/PromptMode";
+import { buildDetailedPrompt, buildImagePrompt } from "@/src/lib/promptBuilder";
+import { ModeToggle, MoreOptions, PromptResults, type GeneratorMode } from "@/src/components/PromptMode";
 import { addPromptsToZip, downloadPromptsTxt } from "@/src/lib/bulkExport";
+import { buildAdobeMeta } from "@/src/lib/adobeMeta";
+import { AdobeMetaPanel } from "@/src/components/AdobeMetaPanel";
+
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { Loader2, Download, Copy, Shirt, Upload, X, CheckCircle2, FileText } from "lucide-react";
@@ -32,6 +35,7 @@ export function TShirtGenerator() {
   
   const addHistory = useStore((state) => state.addHistory);
   const promptInstructions = useStore((state) => state.promptInstructions);
+  const meta = theme ? buildAdobeMeta("tshirt", theme, style, text) : null;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,25 +56,18 @@ export function TShirtGenerator() {
     const generatedPrompts: string[] = [];
     
     try {
-      let basePromptText = `A creative T-Shirt design. Theme: ${theme}. Style: ${style}. `;
-      if (text) basePromptText += `Must include the text/slogan: "${text}". `;
-      if (colors) basePromptText += `Color palette: ${colors}. `;
-      
-      if (useMockup) {
-        basePromptText += `The design should be presented realistically on a blank t-shirt mockup.`;
-      } else {
-        basePromptText += `The design should be a flat vector graphic on a solid white background, optimized for print (300 DPI style), isolated design.`;
-      }
+      const imagePromptText = (variation: number) =>
+        buildImagePrompt("tshirt", { subject: theme, style, extra: text, extra2: colors, useMockup }, variation, count);
 
-      let prompt: any = basePromptText;
-      
+      let prompt: any = imagePromptText(1);
+
       if (referenceImage) {
         const buffer = await referenceImage.file.arrayBuffer();
         const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
         
         prompt = {
           parts: [
-            { text: basePromptText },
+            { text: imagePromptText(1) },
             {
               inlineData: {
                 data: base64,
@@ -84,7 +81,7 @@ export function TShirtGenerator() {
       // Generate sequentially to avoid rate limits and update progress
       for (let i = 0; i < count; i++) {
         // Slight variation in prompt to ensure different results if no reference image
-        const currentPrompt = referenceImage ? prompt : `${basePromptText} Variation ${i + 1}.`;
+        const currentPrompt = referenceImage ? prompt : imagePromptText(i + 1);
         
         const imageUrl = await generateImage(currentPrompt);
         generatedImages.push(imageUrl);
@@ -136,18 +133,6 @@ export function TShirtGenerator() {
     addPromptsToZip(zip, usedPrompts);
     const content = await zip.generateAsync({ type: "blob" });
     saveAs(content, `tshirt_designs.zip`);
-  };
-
-  const handleCopyPrompt = () => {
-    let basePromptText = `A creative T-Shirt design. Theme: ${theme}. Style: ${style}. `;
-    if (text) basePromptText += `Must include the text/slogan: "${text}". `;
-    if (colors) basePromptText += `Color palette: ${colors}. `;
-    if (useMockup) {
-      basePromptText += `The design should be presented realistically on a blank t-shirt mockup.`;
-    } else {
-      basePromptText += `The design should be a flat vector graphic on a solid white background, optimized for print (300 DPI style), isolated design.`;
-    }
-    navigator.clipboard.writeText(basePromptText);
   };
 
   const handleCopyAllPrompts = () => {
@@ -218,8 +203,9 @@ export function TShirtGenerator() {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Reference Image (Optional)</label>
+          <MoreOptions label="More options — reference image & presentation">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Reference Image (Optional)</label>
             {!referenceImage ? (
               <div 
                 onClick={() => fileInputRef.current?.click()}
@@ -242,42 +228,38 @@ export function TShirtGenerator() {
                 </button>
               </div>
             )}
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/png, image/jpeg, image/webp"
-              onChange={handleFileChange}
-            />
-          </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/png, image/jpeg, image/webp"
+                onChange={handleFileChange}
+              />
+            </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Number of Designs</label>
-              <select
-                value={count}
-                onChange={(e) => setCount(Number(e.target.value))}
-                className="flex h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platinum-600 focus-visible:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:focus-visible:ring-platinum-500"
-              >
-                {COUNTS.map((c) => (
-                  <option key={c} value={c}>{c} {c === 1 ? 'Design' : 'Designs'}</option>
-                ))}
-              </select>
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                id="useMockup"
+                checked={useMockup}
+                onChange={(e) => setUseMockup(e.target.checked)}
+                className="w-4 h-4 rounded border-zinc-300 text-platinum-600 focus:ring-platinum-600 dark:border-zinc-700 dark:bg-zinc-900 dark:checked:bg-platinum-600"
+              />
+              <label htmlFor="useMockup" className="text-sm text-zinc-700 dark:text-zinc-300 cursor-pointer">Show on T-Shirt Mockup</label>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Presentation</label>
-              <div className="flex items-center h-10">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={useMockup}
-                    onChange={(e) => setUseMockup(e.target.checked)}
-                    className="w-4 h-4 rounded border-zinc-300 text-platinum-600 focus:ring-platinum-600 dark:border-zinc-700 dark:bg-zinc-900 dark:checked:bg-platinum-600"
-                  />
-                  <span className="text-sm text-zinc-700 dark:text-zinc-300">On Mockup</span>
-                </label>
-              </div>
-            </div>
+          </MoreOptions>
+
+          <div className="space-y-2 pt-2">
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Number of Designs</label>
+            <select
+              value={count}
+              onChange={(e) => setCount(Number(e.target.value))}
+              className="flex h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platinum-600 focus-visible:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:focus-visible:ring-platinum-500"
+            >
+              {COUNTS.map((c) => (
+                <option key={c} value={c}>{c} {c === 1 ? 'Design' : 'Designs'}</option>
+              ))}
+            </select>
           </div>
 
           <div className="pt-2">
@@ -300,6 +282,10 @@ export function TShirtGenerator() {
               "Generate Designs"
             )}
           </Button>
+
+          {meta && (
+            <AdobeMetaPanel meta={meta} filename="tshirt_design.png" />
+          )}
         </div>
       </div>
 
@@ -339,9 +325,6 @@ export function TShirtGenerator() {
                 Generated Designs ({results.length})
               </h3>
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" onClick={handleCopyPrompt}>
-                  <Copy className="w-4 h-4 mr-2" /> Copy Prompt
-                </Button>
                 <Button variant="outline" size="sm" onClick={handleCopyAllPrompts} disabled={usedPrompts.length === 0}>
                   <Copy className="w-4 h-4 mr-2" /> Copy All
                 </Button>

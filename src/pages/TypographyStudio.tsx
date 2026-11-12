@@ -12,6 +12,9 @@ import { FONT_REGISTRY, PRESETS, presetDef, fontDef } from "@/src/lib/typography
 import { buildArtwork } from "@/src/lib/typography/artwork";
 import { buildMockup } from "@/src/lib/typography/mockup";
 import { validateDesign, exportArtwork, exportMockup, type ValidationIssue } from "@/src/lib/typography/export";
+import { buildAdobeMeta } from "@/src/lib/adobeMeta";
+import { AdobeMetaPanel } from "@/src/components/AdobeMetaPanel";
+
 
 /* ---------- small control primitives ---------- */
 
@@ -115,6 +118,12 @@ export function TypographyStudio() {
 
   const set = (patch: Partial<TypographyState>) => setCfg((c) => ({ ...c, ...patch }));
 
+  const typoMeta = cfg.text.trim()
+    ? buildAdobeMeta("typography", cfg.text, fontDef(cfg.fontFamily).family)
+    : null;
+  const typoFilename =
+    cfg.text.replace(/[\s\n]+/g, "_").toLowerCase().slice(0, 40) + "_typography.png";
+
   // Load display fonts up front so canvas measurement matches rendering
   useEffect(() => {
     let cancelled = false;
@@ -169,14 +178,25 @@ export function TypographyStudio() {
   const generateVariations = () => {
     const aligns: TextAlign[] = ["center", "left", "right"];
     const baseIdx = aligns.indexOf(cfg.align);
+    // Accent colours that read well on both black and white shirts.
+    const accentCycle = ["#F5C518", "#E11D48", "#2563EB", "#059669", "#F97316", "#7C3AED"];
+    const accentBase = Math.max(0, accentCycle.findIndex((c) => c.toLowerCase() === cfg.accentColor.toLowerCase()));
+    const presetBase = Math.max(0, PRESETS.findIndex((p) => p.id === cfg.presetId));
     const list: TypographyState[] = [];
     for (let i = 0; i < varCount; i++) {
+      const preset = PRESETS[(presetBase + i) % PRESETS.length];
       list.push({
         ...cfg,
         seed: Math.floor(Math.random() * 1000000) + i * 7919,
         fontScale: Math.min(1.6, Math.max(0.5, cfg.fontScale * (0.92 + (i % 3) * 0.08))),
         decorative: i % 2 === 0 ? cfg.decorative : !cfg.decorative,
         align: aligns[(baseIdx + i) % 3],
+        presetId: preset.id,
+        fontFamily: preset.fontFamily,
+        fontWeight: preset.fontWeight,
+        letterSpacing: preset.letterSpacing,
+        lineHeight: preset.lineHeight,
+        accentColor: accentCycle[(accentBase + i) % accentCycle.length],
       });
     }
     setVariations(list);
@@ -376,6 +396,8 @@ export function TypographyStudio() {
               Same wording, different compositions. Click a variation to edit it.
             </p>
           </Section>
+
+          {typoMeta && <AdobeMetaPanel meta={typoMeta} filename={typoFilename} />}
         </div>
 
         {/* -------- previews -------- */}

@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useStore } from "@/src/store/useStore";
 import { generateImage } from "@/src/lib/gemini";
-import { buildDetailedPrompt } from "@/src/lib/promptBuilder";
+import { buildDetailedPrompt, buildImagePrompt } from "@/src/lib/promptBuilder";
 import { ModeToggle, PromptResults, type GeneratorMode } from "@/src/components/PromptMode";
 import { addPromptsToZip, downloadPromptsTxt } from "@/src/lib/bulkExport";
+import { buildAdobeMeta } from "@/src/lib/adobeMeta";
+import { AdobeMetaPanel } from "@/src/components/AdobeMetaPanel";
+
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { Loader2, Download, Copy, Shapes, CheckCircle2, FileText } from "lucide-react";
@@ -28,6 +31,7 @@ export function IconGenerator() {
   
   const addHistory = useStore((state) => state.addHistory);
   const promptInstructions = useStore((state) => state.promptInstructions);
+  const meta = keyword ? buildAdobeMeta("icon", keyword, style, color) : null;
 
   const handleGenerate = async () => {
     if (!keyword) return;
@@ -40,10 +44,11 @@ export function IconGenerator() {
     const generatedPrompts: string[] = [];
     
     try {
-      const basePromptText = `A set of 16 matching icons about "${keyword}". Style: ${style}. Primary color: ${color || "monochrome"}. Arranged in a clean 4x4 grid, white background, vector style, consistent line weight and design language.`;
-      
+      const imagePromptText = (variation: number) =>
+        buildImagePrompt("icon", { subject: keyword, style, extra: color }, variation, count);
+
       for (let i = 0; i < count; i++) {
-        const currentPrompt = `${basePromptText} Variation ${i + 1}.`;
+        const currentPrompt = imagePromptText(i + 1);
         const imageUrl = await generateImage(currentPrompt);
         generatedImages.push(imageUrl);
         generatedPrompts.push(currentPrompt);
@@ -89,11 +94,6 @@ export function IconGenerator() {
     addPromptsToZip(zip, usedPrompts);
     const content = await zip.generateAsync({ type: "blob" });
     saveAs(content, `${keyword.replace(/\s+/g, "_").toLowerCase()}_icon_packs.zip`);
-  };
-
-  const handleCopyPrompt = () => {
-    const prompt = `A set of 16 matching icons about "${keyword}". Style: ${style}. Primary color: ${color || "monochrome"}. Arranged in a clean 4x4 grid, white background, vector style, consistent line weight and design language.`;
-    navigator.clipboard.writeText(prompt);
   };
 
   const handleCopyAllPrompts = () => {
@@ -184,6 +184,13 @@ export function IconGenerator() {
               "Generate Icon Pack"
             )}
           </Button>
+
+          {meta && (
+            <AdobeMetaPanel
+              meta={meta}
+              filename={`${keyword.replace(/\s+/g, "_").toLowerCase()}_icons.png`}
+            />
+          )}
         </div>
       </div>
 
@@ -223,9 +230,6 @@ export function IconGenerator() {
                 Generated Packs ({results.length})
               </h3>
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" onClick={handleCopyPrompt}>
-                  <Copy className="w-4 h-4 mr-2" /> Copy Prompt
-                </Button>
                 <Button variant="outline" size="sm" onClick={handleCopyAllPrompts} disabled={usedPrompts.length === 0}>
                   <Copy className="w-4 h-4 mr-2" /> Copy All
                 </Button>

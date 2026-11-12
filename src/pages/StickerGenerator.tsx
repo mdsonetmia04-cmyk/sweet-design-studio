@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useStore } from "@/src/store/useStore";
 import { generateImage } from "@/src/lib/gemini";
-import { buildDetailedPrompt } from "@/src/lib/promptBuilder";
+import { buildDetailedPrompt, buildImagePrompt } from "@/src/lib/promptBuilder";
 import { ModeToggle, PromptResults, type GeneratorMode } from "@/src/components/PromptMode";
-import { addPromptsToZip, downloadPromptsTxt } from "@/src/lib/bulkExport";
+import { addPromptsToZip, downloadAdobeCsv, downloadPromptsTxt } from "@/src/lib/bulkExport";
 import { buildAdobeMeta } from "@/src/lib/adobeMeta";
 import { AdobeMetaPanel } from "@/src/components/AdobeMetaPanel";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
-import { Loader2, Download, Copy, Sticker, CheckCircle2, FileText } from "lucide-react";
+import { Loader2, Download, Copy, Sticker, CheckCircle2, FileText, Table } from "lucide-react";
 import { motion } from "motion/react";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
@@ -26,13 +26,12 @@ export function StickerGenerator() {
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [results, setResults] = useState<string[]>([]);
   const [usedPrompts, setUsedPrompts] = useState<string[]>([]);
+  const [metaCategory, setMetaCategory] = useState("");
+  const [metaReleases, setMetaReleases] = useState("None");
 
   const addHistory = useStore((state) => state.addHistory);
   const promptInstructions = useStore((state) => state.promptInstructions);
   const meta = keyword ? buildAdobeMeta("sticker", keyword, style) : null;
-
-  const buildPrompt = (variation: number) =>
-    `Single die-cut sticker of "${keyword}". Style: ${style}. Thick white sticker border, bold outlines, vibrant colors, centered on a plain white background, sticker sheet aesthetic, high detail. Variation ${variation}.`;
 
   const handleGenerate = async () => {
     if (!keyword) return;
@@ -46,7 +45,7 @@ export function StickerGenerator() {
 
     try {
       for (let i = 0; i < count; i++) {
-        const currentPrompt = buildPrompt(i + 1);
+        const currentPrompt = buildImagePrompt("sticker", { subject: keyword, style }, i + 1, count);
         const imageUrl = await generateImage(currentPrompt);
         generatedImages.push(imageUrl);
         generatedPrompts.push(currentPrompt);
@@ -96,10 +95,6 @@ export function StickerGenerator() {
     saveAs(content, `${slug}_stickers.zip`);
   };
 
-  const handleCopyPrompt = () => {
-    navigator.clipboard.writeText(buildPrompt(1));
-  };
-
   const handleCopyAllPrompts = () => {
     if (usedPrompts.length === 0) return;
     navigator.clipboard.writeText(usedPrompts.map((p, i) => `[${i + 1}]\n${p}`).join("\n\n"));
@@ -107,6 +102,18 @@ export function StickerGenerator() {
 
   const handleDownloadPromptsTxt = () => {
     downloadPromptsTxt(`${slug}_prompts.txt`, usedPrompts);
+  };
+
+  const handleDownloadAdobeCsv = () => {
+    if (!meta || results.length === 0) return;
+    const rows = results.map((_, i) => ({
+      filename: results.length === 1 ? `${slug}_sticker.png` : `${slug}_sticker_${i + 1}.png`,
+      title: meta.title,
+      keywords: meta.keywords,
+      categoryId: metaCategory,
+      releases: metaReleases,
+    }));
+    downloadAdobeCsv(`${slug}_adobe_stock.csv`, rows);
   };
 
   return (
@@ -180,7 +187,16 @@ export function StickerGenerator() {
             )}
           </Button>
 
-          {meta && <AdobeMetaPanel meta={meta} />}
+          {meta && (
+            <AdobeMetaPanel
+              meta={meta}
+              filename={`${slug}_sticker.png`}
+              categoryId={metaCategory}
+              onCategoryChange={setMetaCategory}
+              releases={metaReleases}
+              onReleasesChange={setMetaReleases}
+            />
+          )}
         </div>
       </div>
 
@@ -220,14 +236,14 @@ export function StickerGenerator() {
                 Generated Stickers ({results.length})
               </h3>
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" onClick={handleCopyPrompt}>
-                  <Copy className="w-4 h-4 mr-2" /> Copy Prompt
-                </Button>
                 <Button variant="outline" size="sm" onClick={handleCopyAllPrompts} disabled={usedPrompts.length === 0}>
                   <Copy className="w-4 h-4 mr-2" /> Copy All
                 </Button>
                 <Button variant="outline" size="sm" onClick={handleDownloadPromptsTxt} disabled={usedPrompts.length === 0}>
                   <FileText className="w-4 h-4 mr-2" /> Prompts TXT
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleDownloadAdobeCsv} disabled={results.length === 0 || !meta}>
+                  <Table className="w-4 h-4 mr-2" /> Adobe CSV
                 </Button>
                 <Button size="sm" onClick={handleDownloadZip}>
                   <Download className="w-4 h-4 mr-2" />
