@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Copy, Check, FileText, FileText as PromptIcon, Table } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { downloadPromptsTxt, downloadPromptsCsv } from "@/src/lib/bulkExport";
@@ -30,6 +30,33 @@ export function ModeToggle({
           {m === "prompts" ? "Generate Prompts" : "Generate Images"}
         </button>
       ))}
+    </div>
+  );
+}
+
+/** Collapsible "More options" section for secondary generator controls.
+ *  Keeps the form short: essentials stay visible, extras are one click away. */
+export function MoreOptions({
+  label = "More options",
+  children,
+  defaultOpen = false,
+}: {
+  label?: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="space-y-3 pt-1">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="text-sm font-medium text-platinum-600 dark:text-platinum-400 hover:underline"
+      >
+        {open ? "▾" : "▸"} {label}
+      </button>
+      {open && <div className="space-y-4">{children}</div>}
     </div>
   );
 }
