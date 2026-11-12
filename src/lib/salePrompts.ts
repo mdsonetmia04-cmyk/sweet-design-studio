@@ -98,9 +98,9 @@ export const PRESET_LABEL_WORDS = [
 
 const SHAPE_SETS = [
   "circular badges, rectangular labels and ticket-shaped tags",
-  "starburst bursts, hexagonal stickers and ribbon banners",
+  "circular rosette badges, hexagonal stickers and ribbon banners",
   "shield emblems, oval stickers and zigzag-edged labels",
-  "rounded-square tags, star-shaped badges and arrow banners",
+  "rounded-square tags, circular badges and arrow banners",
   "pill-shaped labels, scalloped-edge circles and pennant flags",
   "diamond badges, cloud bursts and bookmark ribbons",
   "tag silhouettes with string holes, price-ticket shapes and seal stamps",
@@ -133,6 +133,15 @@ const STYLE_DESC: Record<string, string> = {
   Monochrome: "strict monochrome discipline, tonal depth only",
   "Bold Modern": "bold modern graphics with strong visual punch",
 };
+
+const COMMERCIAL_ANGLES = [
+  "sized to read clearly as a marketplace thumbnail",
+  "built for large-format print and point-of-sale use",
+  "designed to stand out in a crowded online storefront",
+  "made for social-media promo and web banners",
+  "crafted for clean, professional retail packaging",
+  "optimised for small-size legibility on price labels",
+];
 
 const QUALITY =
   "Clean, polished, professional artwork with clear silhouettes, balanced composition and readable typography wherever text appears.";
@@ -262,6 +271,7 @@ export function buildSalePrompt(
   const shapes = pick(rand, SHAPE_SETS);
   const composition = pick(rand, COMPOSITIONS);
   const palette = pick(rand, PALETTE_WORDINGS)(inputs.primaryColor, inputs.accentColor);
+  const angle = pick(rand, COMMERCIAL_ANGLES);
   const styleDesc = STYLE_DESC[inputs.style] ?? inputs.style.toLowerCase();
 
   const body =
@@ -270,6 +280,7 @@ export function buildSalePrompt(
     `Use a ${palette}, ${styleDesc}, consistent line weight, balanced spacing, and isolated elements ${formatBackground(inputs.background, inputs.format)}. ` +
     `${composition.charAt(0).toUpperCase() + composition.slice(1)}. ` +
     `${formatNote(inputs.format)} ` +
+    `Commercial angle: ${angle}. ` +
     `${QUALITY} ` +
     `${NEGATIVE}` +
     (instructions.trim() ? `\nCustom instructions: ${instructions.trim()}` : "");

@@ -1,5 +1,6 @@
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
+import { adobeCsvRow } from "./adobeMeta";
 
 /** Numbered plain-text rendering of a batch of prompts. */
 export function promptsToText(prompts: string[]): string {
@@ -33,6 +34,36 @@ export function downloadPromptsCsv(
     (p, i) => `${i + 1},${esc(titles?.[i] ?? "")},${esc(p)}`
   );
   const csv = `No,Title,Prompt\n${rows.join("\n")}`;
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  saveAs(blob, filename);
+}
+
+export interface AdobeCsvRowInput {
+  filename: string;
+  title: string;
+  keywords: string[];
+  /** Adobe category numeric ID ("" when not chosen). */
+  categoryId: string;
+  releases: string;
+}
+
+/** Download a batch as an Adobe Stock CSV
+ * (Filename,Title,Keywords,Category,Releases) — ready to attach to an
+ * Adobe Stock contributor upload. */
+export function downloadAdobeCsv(
+  filename: string,
+  rows: AdobeCsvRowInput[]
+): void {
+  if (rows.length === 0) return;
+  const lines = rows.map((r) =>
+    adobeCsvRow(
+      r.filename,
+      { title: r.title, keywords: r.keywords },
+      r.categoryId,
+      r.releases
+    )
+  );
+  const csv = `Filename,Title,Keywords,Category,Releases\n${lines.join("\n")}`;
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   saveAs(blob, filename);
 }
